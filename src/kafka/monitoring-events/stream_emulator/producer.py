@@ -12,10 +12,10 @@ class KafkaProducer:
         self.producer = producer
         self.topic = conf.topic
 
-    def produce_event(self, msg: str) -> None:
+    def produce_event(self, event: bytes) -> None:
         try:
             self.producer.produce(self.topic,
-                                  value=json.dumps(msg).encode(),
+                                  value=event,
                                   callback=delivery_report)
         except Exception as e:
             logger.error(f"Exception in producing event: {e}")

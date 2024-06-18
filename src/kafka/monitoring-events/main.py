@@ -1,4 +1,4 @@
-from stream_emulator.controller import StreamEmulator
+from stream_emulator.emulator import StreamEmulator
 
 
 def main():

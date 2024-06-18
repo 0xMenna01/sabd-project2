@@ -27,7 +27,7 @@ class StreamEmulator:
                     time.sleep(time_interval)
 
             event = row.to_json()
-            self.producer.produce_event(event)
+            self.producer.produce_event(event.encode())
 
             prev_timestamp = event_time
 
