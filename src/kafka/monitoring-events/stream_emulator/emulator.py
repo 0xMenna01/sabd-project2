@@ -1,38 +1,67 @@
-import pandas as pd
-from producer import KafkaProducer
+import config
+import csv
+import json
+from loguru import logger
 import time
-import utils
+from datetime import datetime
+from .producer import KafkaProducer
 
 
-SPEED_FACTOR = 3600  # 1 hour in seconds
-FLUSHING_INTERVAL = 5  # seconds
+# Factor to scale the emulation time.
+# 1 hour of real-time is emulated in 0.1 seconds.
+SPEED_FACTOR = 36000
+
+
+# Interval for flushing the queue to ensure it doesn't get overloaded.
+# This helps manage bursts of events that have the same timestamp.
+FLUSHING_INTERVAL = 0.5  # seconds
 
 
 class StreamEmulator:
     def __init__(self):
         self.producer = KafkaProducer()
+        logger.info(
+            "Kafka producer initialized successfully.")
 
     def start(self):
-        df = utils.read_df_from_csv()
+        starting_time = time.time()
 
-        prev_timestamp = None
-        # Since no events have been produced yet, we set the latest_flush to the current time
-        latest_flush = time.time()
-        for _, row in df.iterrows():
-            event_time = pd.Timestamp(row['date']).timestamp()
+        with open(config.DATASET_PATH, "r") as f:
+            event_reader = csv.reader(f)
+            next(event_reader)  # Skip header
 
-            if prev_timestamp:
-                time_interval = (event_time - prev_timestamp) / SPEED_FACTOR
-                if time_interval > 0:
-                    time.sleep(time_interval)
+            prev_timestamp = None
+            # Since no events have been produced yet, we set the latest_flush to the current time
+            latest_flush = time.time()
 
-            event = row.to_json()
-            self.producer.produce_event(event.encode())
+            logger.info("Producing events..")
 
-            prev_timestamp = event_time
+            for event in event_reader:
+                try:
+                    dt = datetime.strptime(
+                        event[0], "%Y-%m-%dT%H:%M:%S.%f")
+                except ValueError:
+                    continue
 
-            if time.time() - latest_flush > FLUSHING_INTERVAL:
-                self.producer.flush()
-                latest_flush = time.time()
+                event_time = dt.timestamp()
 
-        self.producer.free()
+                if prev_timestamp:
+                    time_interval = (
+                        event_time - prev_timestamp) / SPEED_FACTOR
+                    if time_interval > 0:
+                        time.sleep(time_interval)
+
+                event = json.dumps(event)
+                self.producer.produce_event(event.encode())
+
+                prev_timestamp = event_time
+
+                if time.time() - latest_flush > FLUSHING_INTERVAL:
+                    self.producer.flush()
+                    latest_flush = time.time()
+
+        self.producer.flush()
+
+        ending_time = time.time()
+        logger.info(
+            f"Finished producing events. Time elapsed: {ending_time - starting_time} seconds.")
