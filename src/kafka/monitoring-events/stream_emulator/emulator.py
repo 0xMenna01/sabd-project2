@@ -28,6 +28,7 @@ class StreamEmulator:
 
         with open(config.DATASET_PATH, "r") as f:
             event_reader = csv.reader(f)
+
             next(event_reader)  # Skip header
 
             prev_timestamp = None
@@ -37,6 +38,7 @@ class StreamEmulator:
             logger.info("Producing events..")
 
             for event in event_reader:
+                event = tuple(event)
                 try:
                     dt = datetime.strptime(
                         event[0], "%Y-%m-%dT%H:%M:%S.%f")

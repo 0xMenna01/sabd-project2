@@ -1,5 +1,5 @@
 {
-    "broker": "kafka:9092",
-    "topicMonitoring": "disk_metrics",
-    "topicIngestion": "metrics_ingestion"
+    "broker": "kafka-broker:9092",
+    "topicMonitoring": "disk_monitoring",
+    "topicIngestion": "filtered_disk_monitoring"
 }

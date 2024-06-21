@@ -17,4 +17,3 @@ COPY conf/kafka-config.json conf.json
 # Install dependencies
 RUN pip install confluent-kafka
 RUN pip install loguru
-RUN pip install pandas

@@ -1,5 +1,3 @@
-import json
-import pandas as pd
 from loguru import logger
 from confluent_kafka import Producer
 from config import KafkaConfig
