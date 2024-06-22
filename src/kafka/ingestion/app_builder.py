@@ -1,3 +1,4 @@
+import re
 import faust
 from faust.types.app import AppT
 from config import KafkaConfig
@@ -59,7 +60,15 @@ def filter_event(event: Tuple) -> Optional[FilteredDiskEvent]:
     s9_power_on_hours = event[12]
     s194_temperature_celsius = event[25]
 
-    if date == '' or serial_number == '' or model == '' or failure == '' or vault_id == '' or s9_power_on_hours == '':
+    serial_number_pattern = r'^[A-Z0-9_-]+$'
+    model_pattern = r'^[A-Z0-9 ]+$'
+
+    if not re.match(serial_number_pattern, serial_number):
+        return None
+    if not re.match(model_pattern, model):
+        return None
+    # At this point we know that date, serial_number and model are valid
+    if failure == '' or vault_id == '' or s9_power_on_hours == '':
         return None
 
     return FilteredDiskEvent(
