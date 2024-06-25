@@ -1,3 +1,4 @@
+from datetime import datetime
 import re
 import faust
 from faust.types.app import AppT
@@ -7,7 +8,7 @@ from loguru import logger
 
 
 class FilteredDiskEvent(faust.Record):
-    date: str
+    timestamp: int
     serial_number: str
     model: str
     failure: bool
@@ -71,8 +72,10 @@ def filter_event(event: Tuple) -> Optional[FilteredDiskEvent]:
     if failure == '' or vault_id == '' or s9_power_on_hours == '':
         return None
 
+    timestamp = int(datetime.fromisoformat(date).timestamp())
+
     return FilteredDiskEvent(
-        date,
+        timestamp,
         serial_number,
         model,
         failure=bool(failure),
