@@ -66,13 +66,14 @@ services:
       - "8081:8081"
     command: jobmanager
     environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
-      - CONF_PATH=/opt/flink/job/conf/kafka-config.json
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        metrics.reporters: prom
+        metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
     depends_on:
       - kafka
     tty: true
-    volumes:
-      - ./conf:/opt/flink/job/conf
 
   taskmanager:
     build:
@@ -83,6 +84,7 @@ services:
       - jobmanager
     volumes:
       - ../../src/flink:/opt/flink/job
+      - ../../Results:/opt/flink/job/results
     working_dir: /opt/flink/job
     command: taskmanager
     environment:
@@ -90,5 +92,34 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 10
+        metrics.reporters: prom
+        metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
         metrics.latency.interval: 1000
     tty: true 
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9010:9010
+      - 9090:9090
+    networks:
+      - project2_network
+    tty: true
+    volumes:
+      - ../prometheus/prometheus.yml:/prometheus/prometheus.yml
+      - ../prometheus/data:/prometheus/data
+
+  grafana :
+    image: grafana/grafana
+    networks:
+      - project2_network
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../grafana/dashboards:/var/lib/grafana/dashboards
+      - ../grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ../grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - auth.anonymous.enabled=true
+      - auth.anonymous.org_role = Admin
+    tty : true

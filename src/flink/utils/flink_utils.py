@@ -1,3 +1,4 @@
+import os
 from pyflink.datastream import (
     StreamExecutionEnvironment,
     RuntimeExecutionMode,
@@ -10,7 +11,10 @@ from pyflink.common.serialization import SimpleStringSchema
 from pyflink.common.watermark_strategy import TimestampAssigner
 import json
 from pyflink.common import Row
+from pyflink.table import DataTypes
 from pyflink.datastream.functions import MapFunction, SinkFunction
+from pyflink.datastream.formats.csv import CsvSchema, CsvBulkWriters
+from pyflink.datastream.connectors.file_system import FileSink
 
 
 class FlinkEnvironment:
@@ -58,7 +62,7 @@ class FlinkEnvironmentBuilder:
         env.set_parallelism(1)
         env.set_stream_time_characteristic(TimeCharacteristic.EventTime)
         if self.evaluation:
-            env.get_config().set_latency_tracking_interval(100)
+            env.get_config().set_latency_tracking_interval(1000)
 
         return FlinkEnvironment(env, self.kafka_config)
 
@@ -115,3 +119,26 @@ class ThroughputEvaluator(MapFunction):
         self.throughput = self._count / elapsed_time
 
         return value
+
+
+RESULTS_PATH = os.getenv("RESULTS_PATH", "/results")
+
+
+def build_query1_local_sink(query_name: str) -> FileSink:
+    schema = (
+        CsvSchema.builder()
+        .add_number_column("ts", number_type=DataTypes.INT())
+        .add_number_column("vault_id", number_type=DataTypes.INT())
+        .add_number_column("count", number_type=DataTypes.INT())
+        .add_number_column("mea_s194", number_type=DataTypes.FLOAT())
+        .add_number_column("stddev_s194", number_type=DataTypes.FLOAT())
+        .set_column_separator(",")
+        .build()
+    )
+
+    sink = file_sink_with_scheme(schema, f"{RESULTS_PATH}/{query_name}.csv")
+    return sink
+
+
+def file_sink_with_scheme(scheme: CsvSchema, out_path: str) -> FileSink:
+    return FileSink.for_bulk_format(out_path, CsvBulkWriters.for_schema(scheme)).build()

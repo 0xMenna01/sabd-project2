@@ -1,15 +1,8 @@
-from api.stream_api import StreamingApi
+from cli import StreamCli
 
 
 def main():
-    # Run the Flink job
-    print("Running Flink job")
-    api = StreamingApi()
-    api.prepare_stream()
-
-    api.stream.print()
-    # Execute the Flink job
-    api.env.execute("Flink Streaming Job")
+    StreamCli().run()
 
 
 if __name__ == "__main__":

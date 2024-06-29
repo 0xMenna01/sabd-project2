@@ -61,11 +61,11 @@ class ComputeStats(ProcessWindowFunction):
         yield Row(window.start, vault_id, count, mean, stddev)
 
 
-def query(data: DataStream) -> List[Tuple[str, DataStream]]:
+def query(data: DataStream) -> List[DataStream]:
     """
     Query 1.
 
-    param data: Row of [timestamp, serial_number, model, failure, vault_id, s9_power_on_hours, s194_temperature_celsius]
+    param data: stream of Row [timestamp, serial_number, model, failure, vault_id, s9_power_on_hours, s194_temperature_celsius]
     return: List containing the three windowed resulting streams along with their names.
     """
     vaults_stream = (
@@ -74,16 +74,14 @@ def query(data: DataStream) -> List[Tuple[str, DataStream]]:
         .key_by(lambda x: x.vault_id)
     )
 
-    result_windowed_streams = []
+    result_windowed_streams: List[DataStream] = []
     for name, window in WINDOWS:
         windowed_result = (
-            vaults_stream.window(window).aggregate(
-                TemperatureAggregate(), ComputeStats()
-            )
-            # Convert to JSON string for Kafka
-            .map(lambda x: json.dumps(x), output_type=Types.STRING())
+            vaults_stream.window(window)
+            .aggregate(TemperatureAggregate(), ComputeStats())
+            .name(name)
         )
 
-        result_windowed_streams.append((name, windowed_result))
+        result_windowed_streams.append(windowed_result)
 
     return result_windowed_streams

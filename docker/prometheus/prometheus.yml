@@ -1,0 +1,11 @@
+## https://flink.apache.org/2019/03/11/flink-and-prometheus-cloud-native-monitoring-of-streaming-applications/
+
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'flink'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 1s
+
+    static_configs:
+      - targets: ['jobmanager:9249', 'taskmanager:9249']

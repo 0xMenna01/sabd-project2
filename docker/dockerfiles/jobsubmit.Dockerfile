@@ -18,10 +18,9 @@ RUN curl -o /KafkaConnectorDependencies.jar https://repo.maven.apache.org/maven2
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64
 ENV PATH $JAVA_HOME/bin:$PATH
 ENV CONF_PATH=/opt/flink/conf/kafka-config.json
+ENV RESULTS-PATH=/opt/flink/job/results
 
 COPY conf/kafka-config.json /opt/flink/conf/kafka-config.json
 
 # Install apache-flink
-RUN pip3 install apache-flink
-
-CMD ["flink", "run", "-m", "jobmanager:8081", "--jarfile", "/KafkaConnectorDependencies.jar", "--python", "/opt/flink/job/main.py"]
+RUN pip3 install apache-flink loguru

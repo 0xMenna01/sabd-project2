@@ -16,4 +16,4 @@ ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64
 ENV PATH $JAVA_HOME/bin:$PATH
 
 # Install apache-flink
-RUN pip3 install apache-flink
+RUN pip3 install apache-flink loguru
