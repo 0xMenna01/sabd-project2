@@ -14,7 +14,7 @@ class FilteredDiskEvent(faust.Record):
     failure: bool
     vault_id: int
     s9_power_on_hours: int
-    s194_temperature_celsius: Optional[int]
+    s194_temperature_celsius: int
 
 
 class IngestionApp:
@@ -29,10 +29,10 @@ class AppBuilder:
     def __init__(self, app_name):
         kafka_config = KafkaConfig()
         self.app = faust.App(app_name, broker=kafka_config.broker_url)
-        self.src_topic = self.app.topic(
-            kafka_config.topic_src)
+        self.src_topic = self.app.topic(kafka_config.topic_src)
         self.dest_topic = self.app.topic(
-            kafka_config.topic_dest, value_type=FilteredDiskEvent)
+            kafka_config.topic_dest, value_type=FilteredDiskEvent
+        )
 
         logger.info(f"AppBuilder initialized with app_name: {app_name}")
 
@@ -61,15 +61,15 @@ def filter_event(event: Tuple) -> Optional[FilteredDiskEvent]:
     s9_power_on_hours = event[12]
     s194_temperature_celsius = event[25]
 
-    serial_number_pattern = r'^[A-Z0-9_-]+$'
-    model_pattern = r'^[A-Z0-9 ]+$'
+    serial_number_pattern = r"^[A-Z0-9_-]+$"
+    model_pattern = r"^[A-Za-z0-9 _.-]+$"
 
     if not re.match(serial_number_pattern, serial_number):
         return None
     if not re.match(model_pattern, model):
         return None
     # At this point we know that date, serial_number and model are valid
-    if failure == '' or vault_id == '' or s9_power_on_hours == '':
+    if failure == "" or vault_id == "" or s9_power_on_hours == "":
         return None
 
     timestamp = int(datetime.fromisoformat(date).timestamp())
@@ -83,5 +83,5 @@ def filter_event(event: Tuple) -> Optional[FilteredDiskEvent]:
         # removes the .0 from the string
         s9_power_on_hours=int(s9_power_on_hours[:-2]),
         # Could be null, it will be handled by the consumer (Flink)
-        s194_temperature_celsius=s194_temperature_celsius
+        s194_temperature_celsius=int(s194_temperature_celsius[:-2]),
     )

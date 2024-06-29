@@ -32,9 +32,6 @@ services:
     tty : true
     volumes:
       - ../../src/kafka/ingestion:/home/faust/src
-    working_dir: /home/faust
-    command: |
-      python src/app.py worker -l info
     
     
   kafka:
@@ -60,18 +57,9 @@ services:
       # - BITNAMI_DEBUG=yes
       - KAFKA_CFG_NUM_PARTITIONS=2
 
-  kafka-ui:
-    container_name: kafka-ui
-    image: provectuslabs/kafka-ui:latest
-    depends_on: 
-      - kafka
-    ports:
-      - 8080:8080
-    environment:
-      DYNAMIC_CONFIG_ENABLED: 'true'
-
   jobmanager:
-    image: flink:latest
+    build: 
+      dockerfile: flink_python.Dockerfile
     networks:
       - project2_network
     ports:
@@ -79,17 +67,28 @@ services:
     command: jobmanager
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - CONF_PATH=/opt/flink/job/conf/kafka-config.json
     depends_on:
       - kafka
     tty: true
+    volumes:
+      - ./conf:/opt/flink/job/conf
 
   taskmanager:
-    image: flink:latest
+    build:
+      dockerfile: flink_python.Dockerfile
     networks:
       - project2_network
     depends_on:
       - jobmanager
+    volumes:
+      - ../../src/flink:/opt/flink/job
+    working_dir: /opt/flink/job
     command: taskmanager
     environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager  
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 10
+        metrics.latency.interval: 1000
     tty: true 

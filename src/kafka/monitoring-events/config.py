@@ -3,8 +3,7 @@ import json
 import os
 
 
-DATASET_PATH = os.getenv(
-    "DATASET_PATH", "dataset/raw_data_medium-utv_sorted.csv")
+DATASET_PATH = os.getenv("DATASET_PATH", "dataset/raw_data_medium-utv_sorted.csv")
 
 CONF_PATH = os.getenv("CONF_PATH", "conf.json")
 

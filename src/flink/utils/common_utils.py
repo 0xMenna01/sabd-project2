@@ -1,6 +1,8 @@
 from __future__ import annotations
 import json
 import os
+from pyflink.datastream.connectors.kafka import FlinkKafkaConsumer, FlinkKafkaProducer
+from pyflink.common.serialization import SimpleStringSchema
 
 
 CONF_PATH = os.getenv("CONF_PATH", "conf.json")

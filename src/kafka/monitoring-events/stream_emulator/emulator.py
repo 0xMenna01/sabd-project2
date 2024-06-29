@@ -20,8 +20,7 @@ FLUSHING_INTERVAL = 0.5  # seconds
 class StreamEmulator:
     def __init__(self):
         self.producer = KafkaProducer()
-        logger.info(
-            "Kafka producer initialized successfully.")
+        logger.info("Kafka producer initialized successfully.")
 
     def start(self):
         starting_time = time.time()
@@ -40,16 +39,14 @@ class StreamEmulator:
             for event in event_reader:
                 event = tuple(event)
                 try:
-                    dt = datetime.strptime(
-                        event[0], "%Y-%m-%dT%H:%M:%S.%f")
+                    dt = datetime.strptime(event[0], "%Y-%m-%dT%H:%M:%S.%f")
                 except ValueError:
                     continue
 
                 event_time = dt.timestamp()
 
                 if prev_timestamp:
-                    time_interval = (
-                        event_time - prev_timestamp) / SPEED_FACTOR
+                    time_interval = (event_time - prev_timestamp) / SPEED_FACTOR
                     if time_interval > 0:
                         time.sleep(time_interval)
 
@@ -66,4 +63,5 @@ class StreamEmulator:
 
         ending_time = time.time()
         logger.info(
-            f"Finished producing events. Time elapsed: {ending_time - starting_time} seconds.")
+            f"Finished producing events. Time elapsed: {ending_time - starting_time} seconds."
+        )

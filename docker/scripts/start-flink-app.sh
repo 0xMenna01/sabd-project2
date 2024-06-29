@@ -25,7 +25,6 @@ esac
 
 
 
-docker build -f ./dockerfiles/jobsumit.Dockerfile -t jobsubmit-app .
+docker build -f ./jobsubmit.Dockerfile -t jobsubmit-app .
+cd ../..
 docker run -d --network project2_network --name flink-app --volume ./src/flink:/opt/flink/job jobsubmit-app
-
-docker exec -it flink-app bash -c "flink run --jobmanager jobmanager:8081 --python /opt/flink/job/main.py $QUERY_NUM"
