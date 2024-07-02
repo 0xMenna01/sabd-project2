@@ -1,0 +1,4 @@
+{
+    "broker": "kafka-broker:9092",
+    "topicMonitoring": "disk-monitoring"
+}
