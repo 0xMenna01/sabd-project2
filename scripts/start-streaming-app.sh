@@ -34,4 +34,4 @@ cd ../..
 docker run -d --network project2_network --name flink-app --volume ./src/processing:/opt/flink/job --volume ./Results:/opt/flink/results jobsubmit-app bash -c "flink run -m jobmanager:8081 --jarfile /KafkaConnectorDependencies.jar --python /opt/flink/job/main.py $QUERY_NUM"
 
 # Start producing events
-./scripts/start-producing.sh
+#./scripts/start-producing.sh

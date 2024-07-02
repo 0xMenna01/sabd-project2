@@ -29,7 +29,6 @@ class FlinkEnvironment:
             "group.id": "flink-group",
         }
         self._consumer_topic = kafka_conf.src_topic
-        self._producer_topic = kafka_conf.sink_topic
 
     def add_kafka_source(self) -> DataStream:
         kafka_consumer = FlinkKafkaConsumer(
@@ -41,9 +40,9 @@ class FlinkEnvironment:
 
         return self._env.add_source(kafka_consumer).set_parallelism(1)
 
-    def kafka_sink(self) -> FlinkKafkaProducer:
+    def kafka_sink(self, stream_name: str) -> FlinkKafkaProducer:
         return FlinkKafkaProducer(
-            topic=self._producer_topic,
+            topic=stream_name,
             serialization_schema=SimpleStringSchema(),
             producer_config=self._kafka_conf,
         )
@@ -115,26 +114,3 @@ class ThroughputEvaluator(MapFunction):
         self.throughput = self._count / elapsed_time
 
         return value
-
-
-RESULTS_PATH = os.getenv("RESULTS_PATH", "/results")
-
-
-def build_query1_local_sink(query_name: str) -> FileSink:
-    schema = (
-        CsvSchema.builder()
-        .add_number_column("ts", number_type=DataTypes.INT())
-        .add_number_column("vault_id", number_type=DataTypes.INT())
-        .add_number_column("count", number_type=DataTypes.INT())
-        .add_number_column("mea_s194", number_type=DataTypes.FLOAT())
-        .add_number_column("stddev_s194", number_type=DataTypes.FLOAT())
-        .set_column_separator(",")
-        .build()
-    )
-
-    sink = file_sink_with_scheme(schema, f"{RESULTS_PATH}/{query_name}.csv")
-    return sink
-
-
-def file_sink_with_scheme(scheme: CsvSchema, out_path: str) -> FileSink:
-    return FileSink.for_bulk_format(out_path, CsvBulkWriters.for_schema(scheme)).build()

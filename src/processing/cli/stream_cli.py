@@ -25,26 +25,18 @@ class StreamCli:
             default=False,
             help="Enable evaluation mode",
         )
-        parser.add_argument(
-            "--local-write",
-            action="store_true",
-            default=False,
-            help="Enable writing locally",
-        )
 
         args = parser.parse_args()
 
         self._query = QueryNum(args.query)
         self._is_preprocessed = args.faust_preprocess
         self._evaluation = args.evaluation
-        self._local_write = args.local_write
 
     def run(self):
         api = StreamingApi(
             query=self._query,
             is_preprocessed=self._is_preprocessed,
             evaluation=self._evaluation,
-            write_locally=self._local_write,
         )
 
         api.prepare_stream().query().sink_and_execute()

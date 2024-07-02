@@ -14,9 +14,7 @@ MODEL_PATTERN = r"^[A-Za-z0-9 _.-]+$"
 
 
 class JsonEventToRow(MapFunction):
-    def map(self, value: str) -> Row:
-        event = json.loads(value)
-
+    def map(self, event: list) -> Row:
         time_event = datetime.strptime(event[0], "%Y-%m-%dT%H:%M:%S.%f")
 
         return Row(

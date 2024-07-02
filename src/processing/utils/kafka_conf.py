@@ -15,8 +15,6 @@ class KafkaConfig:
                 self.src_topic = data["topicFaust"]
             else:
                 self.src_topic = data["topicMonitoring"]
-            # Topic where results may be optionally stored.
-            self.sink_topic = data["topicSink"]
 
     @property
     def broker_url(self):

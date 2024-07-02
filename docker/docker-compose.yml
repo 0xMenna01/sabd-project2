@@ -21,6 +21,24 @@ services:
       - ../src/monitoring-events:/home/kafka-producer/src
       - ../dataset:/home/kafka-producer/dataset
 
+
+  results_consumer:
+    build:
+      context: ./results-consumer
+    container_name: consumer-csv
+    networks:
+      - project2_network
+    depends_on:
+      - kafka
+    tty : true
+    volumes:
+      - ../Results:/home/consumer-csv/results
+      - ../src/results-consumer:/home/consumer-csv/src
+    working_dir: /home/consumer-csv
+    command: bash -c "python src/main.py"
+
+
+
   faust_preprocessing:
     build:
       context: ./faust
@@ -56,6 +74,7 @@ services:
       # - BITNAMI_DEBUG=yes
       - KAFKA_CFG_NUM_PARTITIONS=2
 
+
   jobmanager:
     build:
       context: ./flink
@@ -73,6 +92,7 @@ services:
     depends_on:
       - kafka
     tty: true
+
 
   taskmanager:
     build:
@@ -96,6 +116,7 @@ services:
         metrics.latency.interval: 1000
     tty: true 
 
+
   prometheus:
     image: prom/prometheus
     ports:
@@ -107,6 +128,7 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/prometheus/prometheus.yml
       - ./prometheus/data:/prometheus/data
+
 
   grafana :
     image: grafana/grafana

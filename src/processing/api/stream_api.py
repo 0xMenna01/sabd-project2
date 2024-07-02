@@ -5,13 +5,10 @@ from loguru import logger
 from pyflink.common.typeinfo import Types
 from pyflink.common import WatermarkStrategy
 from pyflink.common import Row
-from utils.flink_utils import (
-    CustomTimestampAssigner,
-)
+from utils.flink_utils import CustomTimestampAssigner
 from utils.flink_utils import (
     FlinkEnvironmentBuilder,
     ThroughputEvaluator,
-    build_query1_local_sink,
 )
 from preprocessing import preprocess
 from utils.flink_utils import JsonEventToRowFromFaust
@@ -31,16 +28,13 @@ class StreamingApi:
         query: QueryNum,
         is_preprocessed: bool,
         evaluation: bool,
-        write_locally: bool,
     ):
         flink_env = FlinkEnvironmentBuilder(is_preprocessed, evaluation).build()
 
         self._stream = flink_env.add_kafka_source()
-        self._kafka_sink = flink_env.kafka_sink()
-        self._env = flink_env.env
+        self._flink_env = flink_env
         self._query = query
         self._evaluation = evaluation
-        self._write_locally = write_locally
         self.is_stream_prepared = False
         self._result_streams = None
         self._is_preprocessed = is_preprocessed
@@ -79,21 +73,16 @@ class StreamingApi:
 
         for stream in self._result_streams:
             query_name = stream.get_name()
+            kafka_sink = self._flink_env.kafka_sink(query_name)
             if self._evaluation:
                 stream = stream.map(ThroughputEvaluator())
 
-            if self._write_locally:
-                # Write results to a csv local file
-                local_sink = build_query1_local_sink(query_name)
-                stream.sink_to(local_sink)
-
             # Convert to JSON string for Kafka
-            json_stream = stream.map(lambda x: (query_name, x)).map(
-                lambda x: json.dumps(x), output_type=Types.STRING()
+            stream.map(lambda x: json.dumps(x), output_type=Types.STRING()).add_sink(
+                kafka_sink
             )
-            json_stream.add_sink(self._kafka_sink)
 
             if self._evaluation:
-                self._env.execute_async(query_name)
+                self._flink_env.env.execute_async(query_name)
         if not self._evaluation:
-            self._env.execute(f"Query_{self._query.name}")
+            self._flink_env.env.execute(f"query_{self._query.name}")

@@ -17,3 +17,5 @@ COPY conf/kafka-config.json conf.json
 
 # Install dependencies
 RUN pip install -r requirements.txt
+
+CMD [ "/bin/bash" ]

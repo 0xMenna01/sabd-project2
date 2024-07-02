@@ -50,8 +50,8 @@ class StreamEmulator:
                     if time_interval > 0:
                         time.sleep(time_interval)
 
-                event = json.dumps(event)
-                self.producer.produce_event(event.encode())
+                json_event = json.dumps(event)
+                self.producer.produce_event(json_event.encode())
 
                 prev_timestamp = event_time
 
@@ -65,3 +65,11 @@ class StreamEmulator:
         logger.info(
             f"Finished producing events. Time elapsed: {ending_time - starting_time} seconds."
         )
+
+
+def tuple_for_last_window_triggering(event: tuple) -> str:
+    l_event = list(event)
+    # Set the timestamp to the day after the last event
+    l_event[0] = "2023-04-24T00:00:00.000000"
+
+    return json.dumps(tuple(l_event))
