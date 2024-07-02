@@ -59,6 +59,8 @@ class StreamEmulator:
                     self.producer.flush()
                     latest_flush = time.time()
 
+        trigger_event = tuple_for_last_window_triggering(event)
+        self.producer.produce_event(trigger_event.encode())
         self.producer.flush()
 
         ending_time = time.time()
