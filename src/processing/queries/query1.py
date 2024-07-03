@@ -2,7 +2,11 @@ import json
 import math
 from typing import Iterable
 from pyflink.datastream import DataStream, StreamExecutionEnvironment
-from pyflink.datastream.functions import AggregateFunction, ProcessWindowFunction
+from pyflink.datastream.functions import (
+    AggregateFunction,
+    ProcessWindowFunction,
+    ReduceFunction,
+)
 from pyflink.common import Row, Types
 from pyflink.datastream.window import (
     Time,
@@ -19,48 +23,60 @@ WINDOWS: List[Tuple[str, WindowAssigner]] = [
     ("query1_day", TumblingEventTimeWindows.of(Time.days(1))),
     ("query1_3days", TumblingEventTimeWindows.of(Time.days(3))),
     (
-        "query1_global",
+        "query1_from_start",
         TumblingEventTimeWindows.of(Time.days(23)),
     ),
 ]
 
 
-class TemperatureAggregate(AggregateFunction):
+class WelfordOnlineAggregateFunction(AggregateFunction):
+
     def create_accumulator(self):
-        return (0, 0, 0)  # count, sum, sum of squares
+        return (0, 0.0, 0.0)  # count, mean, M2
 
     def add(
-        self, value: tuple[int, int], accumulator: tuple[int, int, int]
-    ) -> tuple[int, int, int]:
-        # value: (vault_id, temperature)
-        count, sum, sum_of_squares = accumulator
-        temperature = value[1]
+        self, value: tuple[int, int], accumulator: tuple[int, float, float]
+    ) -> tuple[int, float, float]:
+        count, mean, M2 = accumulator
         count += 1
-        sum += temperature
-        sum_of_squares += temperature * temperature
-        return (count, sum, sum_of_squares)
+        delta = value[1] - mean
+        mean += delta / count
+        delta2 = value[1] - mean
+        M2 += delta * delta2
+
+        return (count, mean, M2)
+
+    def merge(
+        self, a: tuple[int, float, float], b: tuple[int, float, float]
+    ) -> tuple[int, float, float]:
+        count_a, mean_a, M2_a = a
+        count_b, mean_b, M2_b = b
+
+        count = count_a + count_b
+        delta = mean_b - mean_a
+        mean = (mean_a + mean_b) / 2
+        M2 = M2_a + M2_b + delta**2 * count_a * count_b / count
+
+        return (count, mean, M2)
 
     def get_result(self, accumulator):
         return accumulator
 
-    def merge(
-        self, a: tuple[int, int, int], b: tuple[int, int, int]
-    ) -> tuple[int, int, int]:
-        return (a[0] + b[0], a[1] + b[1], a[2] + b[2])
 
-
-class ComputeStats(ProcessWindowFunction):
+class ComputeStddev(ProcessWindowFunction):
 
     def process(
         self,
         key: int,
         context: ProcessWindowFunction.Context,
-        stats: Iterable[tuple[int, int, int]],
+        stats: Iterable[tuple[int, float, float]],
     ):
-        count, sum, sum_of_squares = next(iter(stats))
-        mean = sum / count
-        variance = (sum_of_squares / count) - (mean * mean)
-        stddev = math.sqrt(variance) if count > 1 else 0.0
+        count, mean, M2 = next(iter(stats))
+        if count < 2:
+            stddev = float("nan")
+        else:
+            variance = M2 / (count - 1)  # sample variance
+            stddev = math.sqrt(variance)
 
         window: TimeWindow = context.window()
 
@@ -76,12 +92,7 @@ def query(data: DataStream) -> List[DataStream]:
     """
     vaults_stream = (
         data.filter(lambda x: 1000 <= x.vault_id <= 1020)
-        .map(
-            lambda x: (
-                x.vault_id,
-                x.s194_temperature_celsius,
-            )
-        )
+        .map(lambda x: (x.vault_id, x.s194_temperature_celsius, 1))
         .key_by(lambda x: x[0])
     )
 
@@ -89,7 +100,7 @@ def query(data: DataStream) -> List[DataStream]:
     for name, window in WINDOWS:
         windowed_result = (
             vaults_stream.window(window)
-            .aggregate(TemperatureAggregate(), ComputeStats())
+            .aggregate(WelfordOnlineAggregateFunction(), ComputeStddev())
             .name(name)
         )
 

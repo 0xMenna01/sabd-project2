@@ -9,7 +9,7 @@ class Consumer:
         self._consumer: KafkaConsumer = KafkaConsumer(
             "query1_day",
             "query1_3days",
-            "query1_global",
+            "query1_from_start",
             bootstrap_servers="kafka-broker:9092",
             group_id=name,
             auto_offset_reset="earliest",

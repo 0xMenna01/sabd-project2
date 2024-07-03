@@ -11,11 +11,10 @@ from pyflink.common.serialization import SimpleStringSchema
 from pyflink.common.watermark_strategy import TimestampAssigner
 import json
 from pyflink.common import Row
-from pyflink.table import DataTypes
 from pyflink.datastream.functions import MapFunction
-from pyflink.datastream.formats.csv import CsvSchema, CsvBulkWriters
-from pyflink.datastream.connectors.file_system import FileSink
 from pyflink.datastream.functions import MapFunction, RuntimeContext
+from pyflink.datastream import StreamExecutionEnvironment, WindowedStream
+from pyflink.datastream.window import Trigger, TriggerResult
 import datetime
 
 
@@ -114,3 +113,29 @@ class ThroughputEvaluator(MapFunction):
         self.throughput = self._count / elapsed_time
 
         return value
+
+
+class InactivityTrigger(Trigger):
+    def __init__(self, inactivity_duration):
+        self.inactivity_duration = inactivity_duration
+        self.last_seen_time = {}
+
+    def on_element(self, element, timestamp, window, ctx):
+        current_time = ctx.get_current_processing_time()
+        self.last_seen_time[window] = current_time
+        # Register a timer for the inactivity duration from now
+        ctx.register_processing_time_timer(current_time + self.inactivity_duration)
+        return TriggerResult.CONTINUE
+
+    def on_processing_time(self, time, window, ctx):
+        # Fire if the current time is past the last seen time plus the inactivity duration
+        if time >= self.last_seen_time.get(window, 0) + self.inactivity_duration:
+            return TriggerResult.FIRE
+        return TriggerResult.CONTINUE
+
+    def on_event_time(self, time, window, ctx):
+        return TriggerResult.CONTINUE
+
+    def clear(self, window, ctx):
+        self.last_seen_time.pop(window, None)
+        ctx.delete_processing_time_timer(self.inactivity_duration)
