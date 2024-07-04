@@ -35,7 +35,7 @@ services:
       - ../Results:/home/consumer-csv/results
       - ../src/results-consumer:/home/consumer-csv/src
     working_dir: /home/consumer-csv
-    command: bash -c "python src/main.py"
+    command: bash -c " sleep 5; python src/main.py"
 
 
 

@@ -39,4 +39,4 @@ class StreamCli:
             evaluation=self._evaluation,
         )
 
-        api.prepare_stream().query().sink_and_execute()
+        api.prepare_stream().execute_query()

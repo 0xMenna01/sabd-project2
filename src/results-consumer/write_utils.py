@@ -1,8 +1,45 @@
 import json
 import os
 import csv
+from typing import List, Tuple
 
 RESULTS_PATH = os.getenv("RESULTS_PATH", "/results")
+
+HEADER_QUERY1 = ["ts", "vault_id", "count", "mean_s194", "stddev_s194"]
+
+HEADER_QUERY2 = [
+    "ts",
+    "vault_id1",
+    "failures1",
+    "disks1",
+    "vault_id2",
+    "failures2",
+    "disks2",
+    "vault_id3",
+    "failures3",
+    "disks3",
+    "vault_id4",
+    "failures4",
+    "disks4",
+    "vault_id5",
+    "failures5",
+    "disks5",
+    "vault_id6",
+    "failures6",
+    "disks6",
+    "vault_id7",
+    "failures7",
+    "disks7",
+    "vault_id8",
+    "failures8",
+    "disks8",
+    "vault_id9",
+    "failures9",
+    "disks9",
+    "vault_id10",
+    "failures10",
+    "disks10",
+]
 
 
 def init_env():
@@ -10,16 +47,18 @@ def init_env():
     os.system(f"rm -rf {RESULTS_PATH}/*")
 
 
-def write_csv_from(topic_name: str, row: tuple) -> None:
+def write_csv_from(topic_name: str, row: Tuple) -> None:
 
     if topic_name.startswith("query1"):
-        header = ["ts", "vault id", "count", "mean_s194", "stddev_s194"]
+        header = HEADER_QUERY1
     elif topic_name.startswith("query2"):
-        pass
+        header = HEADER_QUERY2
+        # Before conversion, row is (ts, List[(vault_id, failures_count, list_of_models_and_serial_numbers)])
+        row = (row[0],) + tuple(convert_ranking_for_csv(row[1]))
     else:
         raise ValueError(f"Unknown topic name: {topic_name}")
 
-    # write to csv and handle file exist or not
+    # Write to csv and handle if file exists or not
     file_path = f"{RESULTS_PATH}/{topic_name}.csv"
     file_exists = os.path.isfile(file_path)
     with open(file_path, "a", newline="") as file:
@@ -27,3 +66,16 @@ def write_csv_from(topic_name: str, row: tuple) -> None:
         if not file_exists:
             writer.writerow(header)
         writer.writerow(row)
+
+
+# Utility function for writing ranking results of query 2 to a CSV file
+def convert_ranking_for_csv(rank_list: List[Tuple[int, int, List[str]]]) -> List[str]:
+    """Converts the List of [Tuple[vault_id, failures_count, list_models_and_serials]] to a unique List of strings: ["vault_id1", "failures1", "model1, serial_number1, ...", ..., "vault_id10", "failures10", "model10, serial_number10, ..."]"""
+
+    res = []
+    for vault_id, failures_count, disks in rank_list:
+        res.append(str(vault_id))
+        res.append(str(failures_count))
+        res.append(", ".join(disks))
+
+    return res

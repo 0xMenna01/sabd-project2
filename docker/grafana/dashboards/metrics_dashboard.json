@@ -132,7 +132,7 @@
           "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query1_3days\", quantile=\"0.999\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "Day",
+          "legendFormat": "3 Days",
           "range": true,
           "refId": "B"
         },
@@ -142,10 +142,10 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query1_global\", quantile=\"0.999\"})",
+          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query1_alldays\", quantile=\"0.999\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "Global",
+          "legendFormat": "All Days",
           "range": true,
           "refId": "C"
         }
@@ -237,9 +237,9 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{quantile=\"0.999\", job_name=\"Query_2_Min\"})",
+          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{quantile=\"0.999\", job_name=\"query2_day\"})",
           "instant": false,
-          "legendFormat": "30 Mins",
+          "legendFormat": "Day",
           "range": true,
           "refId": "A"
         },
@@ -249,10 +249,10 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"Query_2_Hour\", quantile=\"0.999\"})",
+          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query2_3days\", quantile=\"0.999\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "Hour",
+          "legendFormat": "3 Days",
           "range": true,
           "refId": "B"
         },
@@ -262,15 +262,15 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"Query_2_Day\", quantile=\"0.999\"})",
+          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query2_alldays\", quantile=\"0.999\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "Day",
+          "legendFormat": "All Days",
           "range": true,
           "refId": "C"
         }
       ],
-      "title": "Query_2 Latency [ms]",
+      "title": "Query 2 Latency [ms]",
       "type": "timeseries"
     },
     {
@@ -360,7 +360,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__query1_day_metrics\"} / 100000",
+          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__query1_day\"} / 100000",
           "instant": false,
           "legendFormat": "Day",
           "range": true,
@@ -372,10 +372,10 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__query1_3day_metrics\"} / 100000",
+          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__query1_3days\"} / 100000",
           "hide": false,
           "instant": false,
-          "legendFormat": "Day",
+          "legendFormat": "3 Days",
           "range": true,
           "refId": "B"
         },
@@ -385,15 +385,15 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__query1_global_metrics\"} / 100000",
+          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__query1_alldays\"} / 100000",
           "hide": false,
           "instant": false,
-          "legendFormat": "Global",
+          "legendFormat": "All Days",
           "range": true,
           "refId": "C"
         }
       ],
-      "title": "Query 1 Throughput [tuple / s]",
+      "title": "Query 1 Throughput [tuple/s]",
       "transformations": [],
       "type": "timeseries"
     },
@@ -481,9 +481,9 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__Query_2_Min_Metrics\"} / 10000",
+          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__query2_day\"} / 10000",
           "instant": false,
-          "legendFormat": "30 Mins",
+          "legendFormat": "Day",
           "range": true,
           "refId": "A"
         },
@@ -493,10 +493,10 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__Query_2_Hour_Metrics\"} / 10000",
+          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__query2_3days\"} / 10000",
           "hide": false,
           "instant": false,
-          "legendFormat": "Hour",
+          "legendFormat": "3 Days",
           "range": true,
           "refId": "B"
         },
@@ -506,255 +506,15 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__Query_2_Day_Metrics\"} / 10000",
+          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Map__query2_alldays\"} / 10000",
           "hide": false,
           "instant": false,
-          "legendFormat": "Day",
+          "legendFormat": "All Days",
           "range": true,
           "refId": "C"
         }
       ],
-      "title": "Query_2 Throughput [tuple / s]",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 24,
-        "x": 0,
-        "y": 49
-      },
-      "id": 10,
-      "interval": "10s",
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "builder",
-          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"Query_3_Min\", quantile=\"0.999\"})",
-          "instant": false,
-          "legendFormat": "30 Mins",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "builder",
-          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"Query_3_Hour\", quantile=\"0.999\"})",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "Hour",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "builder",
-          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"Query_3_Day\", quantile=\"0.999\"})",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "Day",
-          "range": true,
-          "refId": "C"
-        }
-      ],
-      "title": "Query_3 Latency [ms]",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 24,
-        "x": 0,
-        "y": 61
-      },
-      "id": 6,
-      "interval": "10s",
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "builder",
-          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Query_3_Min_Metrics\"} / 10000",
-          "instant": false,
-          "legendFormat": "30 Mins",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "builder",
-          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Query_3_Hour_Metrics\"} / 10000",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "Hour",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "builder",
-          "expr": "flink_taskmanager_job_task_operator_throughput{operator_name=\"TumblingEventTimeWindows__Map__Query_3_Day_Metrics\"} / 10000",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "Day",
-          "range": true,
-          "refId": "C"
-        }
-      ],
-      "title": "Query_3 Throughput [tuple / s]",
+      "title": "Query 2 Throughput [tuple/s]",
       "type": "timeseries"
     }
   ],

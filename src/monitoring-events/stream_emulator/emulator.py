@@ -71,7 +71,9 @@ class StreamEmulator:
 
 def tuple_for_last_window_triggering(event: tuple) -> str:
     l_event = list(event)
-    # Set the timestamp to the day after the last event
+    # Set fileds values so that the tuple passes flink filtering, allowing the last window to be triggered. This tuple won't impact query results, since it will not be part of the windows of interest.
     l_event[0] = "2023-04-24T00:00:00.000000"
+    l_event[3] = "1"
+    l_event[4] = "1000"
 
     return json.dumps(tuple(l_event))
