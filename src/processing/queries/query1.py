@@ -90,9 +90,9 @@ class ComputeStddev(ProcessWindowFunction):
         self,
         key: int,
         context: ProcessWindowFunction.Context,
-        stats: Iterable[WelfordStats],
+        elements: Iterable[WelfordStats],
     ) -> Iterable[VaultTemperatureStats]:
-        count, mean, M2 = next(iter(stats))
+        count, mean, M2 = next(iter(elements))
         if count < 2:
             stddev = float("nan")
         else:

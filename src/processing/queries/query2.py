@@ -4,6 +4,7 @@ from pyflink.datastream import DataStream
 from pyflink.datastream.functions import (
     ProcessWindowFunction,
     ReduceFunction,
+    AggregateFunction,
 )
 from pyflink.datastream.window import (
     Time,
@@ -17,12 +18,14 @@ from .executor import QueryExecutor
 TOP_FAILURES = 10
 
 
-# ((day, vault_id), failures_count, list_of_models_and_serial_numbers)
-DailyVaultFailures = Tuple[Tuple[int, int], int, List[str]]
+# (vault_id, failures_count_per_day, list_of_models_and_serial_numbers)
+DailyVaultFailures = Tuple[int, int, List[str]]
 
-# (ts, lowerboud_failures_count, [(vault_id, failures_count, list_of_models_and_serial_numbers)])
+# (lowerboud_failures_count, [(vault_id, failures_count, list_of_models_and_serial_numbers)])
 # Used for accumulating the top 10 vaults with the most failures within the same day.
-RankingDailyVaultsFailures = Tuple[int, int, List[Tuple[int, int, List[str]]]]
+VaultsRankingFailuresAcc = Tuple[int, List[Tuple[int, int, List[str]]]]
+
+TimestampedRankingFailures = Tuple[int, List[Tuple[int, int, List[str]]]]
 
 
 class QueryTwoExecutor(QueryExecutor):
@@ -39,11 +42,22 @@ class QueryTwoExecutor(QueryExecutor):
                 lambda x: (
                     (x.timestamp, x.vault_id),
                     1,
-                    list([]),
+                    list([x.model, x.serial_number]),
                 )
             )
             .key_by(lambda x: x[0])
+            # Count the number of failures per vault per day and accumulate the models and serial numbers.
+            .reduce(
+                lambda x, y: (
+                    x[0],  # (timestamp, vault_id)
+                    x[1] + y[1],  # failures_count
+                    x[2] + y[2],  # list of models and serial numbers
+                ),
+            )
+            # (vault_id, failures_count_per_day, list_of_models_and_serial_numbers)
+            .map(lambda x: (x[0][1], x[1], x[2]))
         )
+
         self.window: WindowAssigner | None = None
 
     def window_assigner(self, window: WindowAssigner) -> QueryTwoExecutor:
@@ -55,62 +69,65 @@ class QueryTwoExecutor(QueryExecutor):
             raise ValueError("Window assigner not set")
 
         return (
-            self.partial_vaults_failures_stream.window(self.window)
-            .reduce(
-                lambda x, y: (
-                    x[0],  # (timestamp, vault_id)
-                    x[1] + y[1],  # failures_count
-                    x[2] + y[2],  # list of models and serial numbers
-                ),
-                ProcessDailyVaultFailures(),
+            # (vault_id, failures_count_per_day, list_of_models_and_serial_numbers)
+            self.partial_vaults_failures_stream.window_all(self.window).aggregate(
+                DailyFailuresRankingAggregateFunction()
             )
-            .key_by(lambda x: x[0])  # timestamp
-            .reduce(DailyFailuresRankingReduceFunction())
-            .map(
-                lambda x: (x[0], x[2])
-            )  # (ts, List[(vault_id, failures_count, list_of_models_and_serial_numbers)])
         )
 
 
-class DailyFailuresRankingReduceFunction(ReduceFunction):
+class DailyFailuresRankingAggregateFunction(AggregateFunction):
 
-    def reduce(
-        self,
-        acc: RankingDailyVaultsFailures,
-        value: RankingDailyVaultsFailures,
-    ) -> RankingDailyVaultsFailures:
-        ts, failures_lowerbound, vaults_ranking = acc
-        _, failures_count, vault_failures = value
+    def create_accumulator(self) -> VaultsRankingFailuresAcc:
+        return (0, list([]))
 
-        # the accumulator's `failures_count` is the lowerbound within the `rank_list`
+    def add(
+        self, value: DailyVaultFailures, acc: VaultsRankingFailuresAcc
+    ) -> VaultsRankingFailuresAcc:
+        vault_id, failures_count, faulty_disks = value
+        failures_lowerbound, vaults_ranking = acc
+
         if failures_count < failures_lowerbound and len(vaults_ranking) == TOP_FAILURES:
             return acc
 
-        vaults_ranking += vault_failures
+        vaults_ranking += list([(vault_id, failures_count, faulty_disks)])
         vaults_ranking.sort(key=lambda x: x[1], reverse=True)
 
         failures_lowerbound = min(failures_lowerbound, failures_count)
         if len(vaults_ranking) > TOP_FAILURES:
             vaults_ranking.pop()
 
-        return (ts, failures_lowerbound, vaults_ranking)
+        return (failures_lowerbound, vaults_ranking)
+
+    def merge(
+        self, a: VaultsRankingFailuresAcc, b: VaultsRankingFailuresAcc
+    ) -> VaultsRankingFailuresAcc:
+        failures_lowerbound_a, vaults_ranking_a = a
+        failures_lowerbound_b, vaults_ranking_b = b
+
+        vaults_ranking = vaults_ranking_a + vaults_ranking_b
+        vaults_ranking.sort(key=lambda x: x[1], reverse=True)
+        vaults_ranking = vaults_ranking[:TOP_FAILURES]
+
+        failures_lowerbound = min(failures_lowerbound_a, failures_lowerbound_b)
+
+        return (failures_lowerbound, vaults_ranking)
+
+    def get_result(
+        self, accumulator: VaultsRankingFailuresAcc
+    ) -> VaultsRankingFailuresAcc:
+        return accumulator
 
 
-class ProcessDailyVaultFailures(ProcessWindowFunction):
+class ProcessVaultsRanking(ProcessWindowFunction):
 
     def process(
         self,
-        key: int,
+        key,
         context: ProcessWindowFunction.Context,
-        values: Iterable[DailyVaultFailures],
-    ) -> Iterable[RankingDailyVaultsFailures]:
-
-        value = next(iter(values))
-
+        elements: Iterable[VaultsRankingFailuresAcc],
+    ) -> Iterable[TimestampedRankingFailures]:
+        _, ranking = next(iter(elements))
         window: TimeWindow = context.window()
-        # (ts, failures_count, [(vault_id, failures_count, list_of_models_and_serial_numbers)])
-        yield (
-            window.start,
-            value[1],
-            list([(value[0][1], value[1], value[2])]),
-        )
+
+        yield (window.start, ranking)
