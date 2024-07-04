@@ -82,7 +82,7 @@ def filter_event(event: Tuple) -> Optional[FilteredDiskEvent]:
         timestamp,
         serial_number,
         model,
-        failure=bool(failure),
+        failure=bool(int(failure)),
         vault_id=int(vault_id),
         # removes the .0 from the string
         s9_power_on_hours=int(s9_power_on_hours[:-2]),

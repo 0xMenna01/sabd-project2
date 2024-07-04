@@ -45,7 +45,7 @@ def execute(data: DataStream) -> DataStream:
                 timestamp=x.timestamp,
                 serial_number=str(x.serial_number),
                 model=str(x.model),
-                failure=bool(x.failure),
+                failure=bool(int(x.failure)),
                 vault_id=int(x.vault_id),
                 s9_power_on_hours=int(x.s9_power_on_hours[:-2]),
                 s194_temperature_celsius=int(x.s194_temperature_celsius[:-2]),

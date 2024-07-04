@@ -31,7 +31,7 @@ cd ../docker/flink_submit
 docker build -t jobsubmit-app .
 cd ../..
 # Start the Flink job. This will run the input query, evaluate metrics, and write results to a local csv file.
-docker run -d --network project2_network --name flink-app --volume ./src/processing:/opt/flink/job --volume ./Results:/opt/flink/results jobsubmit-app bash -c "flink run -m jobmanager:8081 --jarfile /KafkaConnectorDependencies.jar --python /opt/flink/job/main.py $QUERY_NUM"
+docker run -d --network project2_network --name flink-app --volume ./src/processing:/opt/flink/job --volume ./Results:/opt/flink/results jobsubmit-app bash -c "flink run -m jobmanager:8081 --jarfile /KafkaConnectorDependencies.jar --python /opt/flink/job/main.py $QUERY_NUM --evaluation"
 
 # Start producing events
 #./scripts/start-producing.sh

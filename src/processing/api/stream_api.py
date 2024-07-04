@@ -32,9 +32,9 @@ WindowData = List[Tuple[Tuple[str, str], WindowAssigner]]
 
 WINDOWS: WindowData = [
     (("query1_day", "query2_day"), TumblingEventTimeWindows.of(Time.days(1))),
-    (("query1_3days", "query2_3day"), TumblingEventTimeWindows.of(Time.days(3))),
+    (("query1_3days", "query2_3days"), TumblingEventTimeWindows.of(Time.days(3))),
     (
-        ("query1_from_start", "query2_from_start"),
+        ("query1_alldays", "query2_alldays"),
         TumblingEventTimeWindows.of(Time.days(23)),
     ),
 ]

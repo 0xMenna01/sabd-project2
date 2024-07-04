@@ -62,7 +62,7 @@ class FlinkEnvironmentBuilder:
         env.set_parallelism(1)
         env.set_stream_time_characteristic(TimeCharacteristic.EventTime)
         if self.evaluation:
-            env.get_config().set_latency_tracking_interval(1000)
+            env.get_config().set_latency_tracking_interval(10)
 
         return FlinkEnvironment(env, self.kafka_config)
 
@@ -75,10 +75,10 @@ class JsonEventToRowFromFaust(MapFunction):
             timestamp=json_data["timestamp"],
             serial_number=json_data["serial_number"],
             model=json_data["model"],
-            failure=json_data["failure"],
-            vault_id=json_data["vault_id"],
-            s9_power_on_hours=json_data["s9_power_on_hours"],
-            s194_temperature_celsius=json_data["s194_temperature_celsius"],
+            failure=bool(int(json_data["failure"])),
+            vault_id=int(json_data["vault_id"]),
+            s9_power_on_hours=int(json_data["s9_power_on_hours"]),
+            s194_temperature_celsius=int(json_data["s194_temperature_celsius"]),
         )
 
 

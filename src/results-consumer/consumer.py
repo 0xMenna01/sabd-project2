@@ -9,10 +9,10 @@ class Consumer:
         self._consumer: KafkaConsumer = KafkaConsumer(
             "query1_day",
             "query1_3days",
-            "query1_from_start",
+            "query1_alldays",
             "query2_day",
             "query2_3days",
-            "query2_from_start",
+            "query2_alldays",
             bootstrap_servers="kafka-broker:9092",
             group_id=name,
             auto_offset_reset="earliest",
