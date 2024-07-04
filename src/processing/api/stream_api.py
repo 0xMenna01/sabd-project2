@@ -1,7 +1,7 @@
 from __future__ import annotations
 from enum import Enum
 import json
-from loguru import logger
+from typing import List, Tuple
 from pyflink.common.typeinfo import Types
 from pyflink.common import WatermarkStrategy
 from pyflink.common import Row
@@ -10,15 +10,32 @@ from utils.flink_utils import (
     FlinkEnvironmentBuilder,
     ThroughputEvaluator,
 )
+from pyflink.datastream.window import (
+    Time,
+    TumblingEventTimeWindows,
+    WindowAssigner,
+)
 from preprocessing import preprocess
 from utils.flink_utils import JsonEventToRowFromFaust
-from queries import query1
+from queries.query1 import QueryOneExecutor
+from queries.query2 import QueryTwoExecutor
+from queries.executor import QueryExecutor
 
 
 class QueryNum(Enum):
     ONE = 1
     TWO = 2
-    THREE = 3
+
+
+WindowData = List[Tuple[Tuple[str, str], WindowAssigner]]
+
+
+WINDOWS: WindowData = [
+    (
+        ("query1_from_start", "query2_from_start"),
+        TumblingEventTimeWindows.of(Time.days(23)),
+    ),
+]
 
 
 class StreamingApi:
@@ -57,32 +74,36 @@ class StreamingApi:
 
         return self
 
-    def query(self) -> StreamingApi:
+    def execute_query(self) -> StreamingApi:
         assert self.is_stream_prepared, "Stream not prepared"
+
+        window_index = 0
+        query_exec: QueryExecutor
+
         if self._query == QueryNum.ONE:
-            self._result_streams = query1.query(self._stream)
+            query_exec = QueryOneExecutor(self._stream)
         elif self._query == QueryNum.TWO:
-            pass
-        elif self._query == QueryNum.THREE:
-            pass
+            query_exec = QueryTwoExecutor(self._stream)
+            window_index = 1
 
-        return self
+        for query_names, window in WINDOWS:
+            name = query_names[window_index]
+            # Assign window and execute query
+            res_stream = query_exec.window_assigner(window).execute().name(name)
 
-    def sink_and_execute(self) -> None:
-        assert self._result_streams is not None, "Query not executed"
-
-        for stream in self._result_streams:
-            query_name = stream.get_name()
-            kafka_sink = self._flink_env.kafka_sink(query_name)
+            kafka_sink = self._flink_env.kafka_sink(name)
             if self._evaluation:
-                stream = stream.map(ThroughputEvaluator())
-
-            # Convert to JSON string for Kafka
-            stream.map(lambda x: json.dumps(x), output_type=Types.STRING()).add_sink(
-                kafka_sink
-            )
+                # Evaluate throughput
+                res_stream = res_stream.map(ThroughputEvaluator())
+            # Convert into JSON for Kafka and add sink
+            res_stream.map(
+                lambda x: json.dumps(x), output_type=Types.STRING()
+            ).add_sink(kafka_sink)
 
             if self._evaluation:
-                self._flink_env.env.execute_async(query_name)
+                self._flink_env.env.execute_async(name)
+
         if not self._evaluation:
             self._flink_env.env.execute(f"query_{self._query.name}")
+
+        return self

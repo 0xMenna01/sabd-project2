@@ -1,23 +1,40 @@
 #!/bin/bash
 
-cd ../docker
+DOCKER_COMPOSE_DIR="../docker"
+SETUP_TOPICS_SCRIPT="../scripts/setup-topics.sh"
+FAUST_CONTAINER_NAME="faust_preprocessing"
+FAUST_SCRIPT_PATH="/home/faust/src/main.py"
 
-if [ "$1" == "start" ]; then
+
+start_containers() {
     docker compose up -d
+    $SETUP_TOPICS_SCRIPT create
 
-    ../scripts/setup-topics.sh create
-
-    if [[ "$@" =~ "--faust-preprocessing" ]]; then
+    if [[ "$*" =~ "--faust-preprocessing" ]]; then
         echo "Starting Faust app to listen for events to ingest..."
         sleep 5
-        # Prepare to consume events from Kafka. Faust will then ingest them into a new topic for the Flink job to consume.
-        docker compose exec -d faust_preprocessing bash -c "python /home/faust/src/main.py worker -l info"
+        docker compose exec -d "$FAUST_CONTAINER_NAME" bash -c "python $FAUST_SCRIPT_PATH worker -l info"
         echo "Faust app started."
     fi
+}
 
-elif [ "$1" == "stop" ]; then
+
+stop_containers() {
     docker compose down
-else
-    echo "Usage: $0 [start|stop] [--faust]"
-    exit 1
-fi
+}
+
+
+case "$1" in
+    start)
+        cd "$DOCKER_COMPOSE_DIR" || { echo "Directory $DOCKER_COMPOSE_DIR not found."; exit 1; }
+        start_containers "$@"
+        ;;
+    stop)
+        cd "$DOCKER_COMPOSE_DIR" || { echo "Directory $DOCKER_COMPOSE_DIR not found."; exit 1; }
+        stop_containers
+        ;;
+    *)
+        echo "Usage: $0 [start|stop] [--faust-preprocessing]"
+        exit 1
+        ;;
+esac
