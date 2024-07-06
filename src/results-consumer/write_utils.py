@@ -76,6 +76,6 @@ def convert_ranking_for_csv(rank_list: List[Tuple[int, int, List[str]]]) -> List
     for vault_id, failures_count, disks in rank_list:
         res.append(str(vault_id))
         res.append(str(failures_count))
-        res.append(", ".join(disks))
+        res.append(", ".join([f"{disk[0]}, {disk[1]}" for disk in disks]))
 
     return res

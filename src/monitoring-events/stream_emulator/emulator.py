@@ -3,12 +3,13 @@ import csv
 import json
 from loguru import logger
 import time
+import random
 from datetime import datetime
 from .producer import KafkaProducer
 
 
 # Factor to scale the emulation time.
-# 1 hour of real-time is emulated in 0.1 seconds.
+# 1 hour of real-time is emulated in 1 seconds.
 SPEED_FACTOR = 36000
 
 
@@ -48,6 +49,7 @@ class StreamEmulator:
                 if prev_timestamp:
                     time_interval = (event_time - prev_timestamp) / SPEED_FACTOR
                     if time_interval > 0:
+
                         time.sleep(time_interval)
 
                 json_event = json.dumps(event)
