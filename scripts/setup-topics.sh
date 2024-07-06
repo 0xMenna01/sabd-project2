@@ -2,7 +2,7 @@
 
 CONTAINER_NAME="kafka-broker"
 KAFKA_BROKER="localhost:9092"
-TOPICS=("disk-monitoring" "filtered-disk-monitoring")
+TOPICS=("disk-monitoring" "faust-disk-monitoring")
 PARTITIONS=1
 REPLICATION_FACTOR=1
 

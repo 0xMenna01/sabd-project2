@@ -1,3 +1,4 @@
+import datetime
 import os
 from pyflink.datastream import (
     StreamExecutionEnvironment,
@@ -11,8 +12,7 @@ from pyflink.common.serialization import SimpleStringSchema
 from pyflink.common.watermark_strategy import TimestampAssigner
 import json
 from pyflink.common import Row
-from pyflink.datastream.functions import MapFunction
-from pyflink.datastream.functions import MapFunction
+from pyflink.datastream.functions import MapFunction, RuntimeContext
 from pyflink.datastream import StreamExecutionEnvironment
 
 

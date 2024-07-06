@@ -10,12 +10,12 @@ from .producer import KafkaProducer
 
 # Factor to scale the emulation time.
 # 1 hour of real-time is emulated in 1 seconds.
-SPEED_FACTOR = 36000
+SPEED_FACTOR = 3600
 
 
 # Interval for flushing the queue to ensure it doesn't get overloaded.
 # This helps manage bursts of events that have the same timestamp.
-FLUSHING_INTERVAL = 0.5  # seconds
+FLUSHING_INTERVAL = 10  # seconds
 
 
 class StreamEmulator:
@@ -48,9 +48,14 @@ class StreamEmulator:
 
                 if prev_timestamp:
                     time_interval = (event_time - prev_timestamp) / SPEED_FACTOR
-                    if time_interval > 0:
+                    if time_interval == 0:
+                        # Same day.
+                        # Introduce a uniformly distributed delay to avoid a burst of events and to simulate
+                        # the real-time nature of the data. This ensures that events with the same timestamp
+                        # do not arrive simultaneously, thereby spreading out their arrival times.
+                        time_interval = random.uniform(0, 0.1)
 
-                        time.sleep(time_interval)
+                    time.sleep(time_interval)
 
                 json_event = json.dumps(event)
                 self.producer.produce_event(json_event.encode())
