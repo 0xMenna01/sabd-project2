@@ -1,5 +1,4 @@
-FROM flink:1.19.1
-
+FROM flink:latest
 
 # Install dependencies and update package list
 RUN apt-get update -y && \
@@ -11,13 +10,12 @@ RUN apt-get update -y && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     rm -rf /var/lib/apt/lists/*
 
-RUN curl -o /KafkaConnectorDependencies.jar https://repo.maven.apache.org/maven2/org/apache/flink/flink-sql-connector-kafka/1.17.1/flink-sql-connector-kafka-1.17.1.jar
-
-
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64
 ENV PATH $JAVA_HOME/bin:$PATH
 ENV CONF_PATH=/opt/flink/conf/kafka-config.json
-ENV RESULTS-PATH=/opt/flink/results
+
+RUN curl -o /opt/flink/lib/flink-sql-connector-kafka-1.19.1.jar https://repo.maven.apache.org/maven2/org/apache/flink/flink-sql-connector-kafka/1.17.1/flink-sql-connector-kafka-1.17.1.jar
+
 
 COPY conf/requirements.txt /opt/flink/conf/requirements.txt
 COPY conf/kafka-config.json /opt/flink/conf/kafka-config.json
