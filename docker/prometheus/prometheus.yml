@@ -2,10 +2,10 @@
 
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'flink'
+  - job_name: "flink"
 
     # Override the global default and scrape targets from this job every 5 seconds.
     scrape_interval: 1s
 
     static_configs:
-      - targets: ['jobmanager:9249', 'taskmanager:9249']
+      - targets: ["jobmanager:9249", "taskmanager:9249"]

@@ -71,7 +71,6 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_NODE_ID=1
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
-      # - BITNAMI_DEBUG=yes
       - KAFKA_CFG_NUM_PARTITIONS=2
 
 
@@ -89,6 +88,7 @@ services:
         jobmanager.rpc.address: jobmanager
         metrics.reporters: prom
         metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+        metrics.reporter.prom.port: 9249
     depends_on:
       - kafka
     tty: true
@@ -103,7 +103,6 @@ services:
       - jobmanager
     volumes:
       - ../src/processing:/opt/flink/job
-      - ../Results:/opt/flink/results
     working_dir: /opt/flink/job
     command: taskmanager
     environment:
@@ -113,6 +112,7 @@ services:
         taskmanager.numberOfTaskSlots: 10
         metrics.reporters: prom
         metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+        metrics.reporter.prom.port: 9249
         metrics.latency.interval: 1000
     tty: true 
 
