@@ -10,8 +10,8 @@ class StreamCli:
         parser.add_argument(
             "query",
             type=int,
-            choices=[1, 2, 3],
-            help="Query number for the Streaming API (1, 2, or 3)",
+            choices=[1, 2],
+            help="Query number for the Streaming API (1, or 2)",
         )
         parser.add_argument(
             "--faust-preprocess",
