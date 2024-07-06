@@ -8,7 +8,6 @@ from pyflink.common import Row
 from utils.flink_utils import CustomTimestampAssigner
 from utils.flink_utils import (
     FlinkEnvironmentBuilder,
-    ThroughputEvaluator,
 )
 from pyflink.datastream.window import (
     Time,
@@ -81,7 +80,6 @@ class StreamingApi:
 
         window_index = 0
         query_exec: QueryExecutor
-
         if self._query == QueryNum.ONE:
             query_exec = QueryOneExecutor(self._stream)
         elif self._query == QueryNum.TWO:
@@ -91,12 +89,9 @@ class StreamingApi:
         for query_names, window in WINDOWS:
             name = query_names[window_index]
             # Assign window and execute query
-            res_stream = query_exec.window_assigner(window).execute().name(name)
+            res_stream = query_exec.window_assigner(window).query().name(name)
 
             kafka_sink = self._flink_env.kafka_sink(name)
-            if self._evaluation:
-                # Evaluate throughput
-                res_stream = res_stream.map(ThroughputEvaluator())
             # Convert into JSON for Kafka and add sink
             res_stream.map(
                 lambda x: json.dumps(x), output_type=Types.STRING()

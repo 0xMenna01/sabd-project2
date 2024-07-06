@@ -23,12 +23,12 @@ VaultTemperatureStats = Tuple[int, int, int, float, float]
 
 
 class QueryOneExecutor(QueryExecutor):
+
     def __init__(self, data: DataStream):
         """
         Query 1.
 
         param data: stream of Row [timestamp, serial_number, model, failure, vault_id, s9_power_on_hours, s194_temperature_celsius]
-        return: List containing the three windowed resulting streams along with their names.
         """
         self.partial_vaults_stream = (
             data.filter(lambda x: 1000 <= x.vault_id <= 1020)
@@ -41,7 +41,7 @@ class QueryOneExecutor(QueryExecutor):
         self.window = window
         return self
 
-    def execute(self) -> DataStream:
+    def query(self) -> DataStream:
         if self.window is None:
             raise ValueError("Window assigner not set")
 

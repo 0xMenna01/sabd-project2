@@ -12,5 +12,5 @@ class QueryExecutor(ABC):
         pass
 
     @abstractmethod
-    def execute(self) -> DataStream:
+    def query(self) -> DataStream:
         pass
