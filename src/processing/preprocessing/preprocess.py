@@ -17,9 +17,9 @@ class JsonEventToRow(MapFunction):
     def map(self, value: str) -> Row:
         event = json.loads(value)
 
-        time_event = datetime.strptime(event[0], "%Y-%m-%dT%H:%M:%S.%f")
+        timestamp = datetime.fromisoformat(event[0]).timestamp()
         return Row(
-            timestamp=datetime.timestamp(time_event) * 1000,
+            timestamp=timestamp * 1000,
             serial_number=event[1],
             model=event[2],
             failure=event[3],

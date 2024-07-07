@@ -11,34 +11,24 @@ HEADER_QUERY2 = [
     "ts",
     "vault_id1",
     "failures1",
-    "disks1",
     "vault_id2",
     "failures2",
-    "disks2",
     "vault_id3",
     "failures3",
-    "disks3",
     "vault_id4",
     "failures4",
-    "disks4",
     "vault_id5",
     "failures5",
-    "disks5",
     "vault_id6",
     "failures6",
-    "disks6",
     "vault_id7",
     "failures7",
-    "disks7",
     "vault_id8",
     "failures8",
-    "disks8",
     "vault_id9",
     "failures9",
-    "disks9",
     "vault_id10",
     "failures10",
-    "disks10",
 ]
 
 
@@ -70,12 +60,16 @@ def write_csv_from(topic_name: str, row: Tuple) -> None:
 
 # Utility function for writing ranking results of query 2 to a CSV file
 def convert_ranking_for_csv(rank_list: List[Tuple[int, int, List[str]]]) -> List[str]:
-    """Converts the List of [Tuple[vault_id, failures_count, list_models_and_serials]] to a unique List of strings: ["vault_id1", "failures1", "model1, serial_number1, ...", ..., "vault_id10", "failures10", "model10, serial_number10, ..."]"""
+    """Converts the List of [Tuple[vault_id, failures_count, list_models_and_serials]] to a unique List of strings: ["vault_id1", "failures1 (model1, serial_number1, ...)", ..., "vault_id10", "failures10 (model10, serial_number10, ...)"]"""
 
     res = []
     for vault_id, failures_count, disks in rank_list:
         res.append(str(vault_id))
-        res.append(str(failures_count))
-        res.append(", ".join([f"{disk[0]}, {disk[1]}" for disk in disks]))
+        disks = ", ".join([f"{disk[0]}, {disk[1]}" for disk in disks])
+        res.append(f"{str(failures_count)} ({disks})")
+
+    if len(res) < 10 * 2:
+        # append null values
+        res += [""] * (10 * 2 - len(res))
 
     return res
