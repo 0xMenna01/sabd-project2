@@ -1,5 +1,3 @@
-import datetime
-import os
 from pyflink.datastream import (
     StreamExecutionEnvironment,
     RuntimeExecutionMode,

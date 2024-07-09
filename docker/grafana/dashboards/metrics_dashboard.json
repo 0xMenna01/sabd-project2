@@ -99,7 +99,7 @@
         "y": 1
       },
       "id": 7,
-      "interval": "15s",
+      "interval": "20s",
       "options": {
         "legend": {
           "calcs": [],
@@ -120,7 +120,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query1_day\"})",
+          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query1_day\", quantile=\"0.999\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -136,7 +136,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query1_3days\"})",
+          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query1_3days\", quantile=\"0.999\"})",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -153,7 +153,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query1_alldays\"})",
+          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query1_alldays\", quantile=\"0.99\"})",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -164,7 +164,7 @@
           "useBackend": false
         }
       ],
-      "title": "Query_1 Latency",
+      "title": "Query 1 Latency",
       "transparent": true,
       "type": "timeseries"
     },
@@ -234,7 +234,7 @@
         "y": 13
       },
       "id": 8,
-      "interval": "15s",
+      "interval": "20s",
       "options": {
         "legend": {
           "calcs": [],
@@ -255,7 +255,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query2_day\"})",
+          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query2_day\", quantile=\"0.999\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -271,7 +271,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query2_3days\"})",
+          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query2_3days\", quantile=\"0.999\"})",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -288,7 +288,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query2_alldays\"})",
+          "expr": "max(flink_taskmanager_job_latency_source_id_operator_id_operator_subtask_index_latency{job_name=\"query2_alldays\", quantile=\"0.999\"})",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -299,7 +299,7 @@
           "useBackend": false
         }
       ],
-      "title": "Query_2 Latency",
+      "title": "Query 2 Latency",
       "transparent": true,
       "type": "timeseries"
     },
@@ -581,7 +581,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "5s",
+  "refresh": "10s",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -595,6 +595,6 @@
   "timezone": "",
   "title": "Flink Metrics",
   "uid": "feea5407-4582-4ae8-a039-c4b06bba4c73",
-  "version": 11,
+  "version": 4,
   "weekStart": ""
 }

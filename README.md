@@ -53,7 +53,7 @@ Once the architecture is running, you can execute queries as follows:
    ./start-streaming-app.sh query2 --evaluation
    ```
 
-   **Note:** To execute two queries simultaneously, you must use the `--evaluation` flag because it utilizes the `execute_async` function to schedule the job execution.
+   **Note:** To execute two queries simultaneously, you must use the `--evaluation` flag because it utilizes the `execute_async` function to schedule the job execution. If you want to use the preprocessed data by faust, use the `--faust-preprocess` flag.
 
 3. **Stopping a query:**
    Before starting a new query, stop the current flink client container:
