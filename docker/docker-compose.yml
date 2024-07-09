@@ -136,7 +136,9 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./grafana:/etc/grafana/provisioning/datasources
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
     environment:
       - auth.anonymous.enabled=true
       - auth.anonymous.org_role = Admin

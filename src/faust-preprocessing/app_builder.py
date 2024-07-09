@@ -14,7 +14,6 @@ class FilteredDiskEvent(faust.Record):
     model: str
     failure: bool
     vault_id: int
-    s9_power_on_hours: int
     s194_temperature_celsius: int
 
 
@@ -62,7 +61,6 @@ def filter_event(event: Tuple) -> Optional[FilteredDiskEvent]:
     model = event[2]
     failure = event[3]
     vault_id = event[4]
-    s9_power_on_hours = event[12]
     s194_temperature_celsius = event[25]
 
     serial_number_pattern = r"^[A-Z0-9_-]+$"
@@ -73,19 +71,16 @@ def filter_event(event: Tuple) -> Optional[FilteredDiskEvent]:
     if not re.match(model_pattern, model):
         return None
     # At this point we know that date, serial_number and model are valid
-    if failure == "" or vault_id == "" or s9_power_on_hours == "":
+    if failure == "" or vault_id == "" or s194_temperature_celsius == "":
         return None
 
     timestamp = int(datetime.fromisoformat(date).timestamp())
 
     return FilteredDiskEvent(
-        timestamp,
+        timestamp * 1000,
         serial_number,
         model,
         failure=bool(int(failure)),
         vault_id=int(vault_id),
-        # removes the .0 from the string
-        s9_power_on_hours=int(s9_power_on_hours[:-2]),
-        # Could be null, it will be handled by the consumer (Flink)
         s194_temperature_celsius=int(s194_temperature_celsius[:-2]),
     )

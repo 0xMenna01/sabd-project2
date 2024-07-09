@@ -38,7 +38,7 @@ def execute(data: DataStream) -> DataStream:
             and re.match(MODEL_PATTERN, x.model)
             and x.failure is not EMPTY_STRING
             and x.vault_id is not EMPTY_STRING
-            and x.s9_power_on_hours is not EMPTY_STRING
+            and x.s194_temperature_celsius is not EMPTY_STRING
         )
         .map(
             lambda x: Row(
@@ -47,7 +47,6 @@ def execute(data: DataStream) -> DataStream:
                 model=str(x.model),
                 failure=bool(int(x.failure)),
                 vault_id=int(x.vault_id),
-                s9_power_on_hours=int(x.s9_power_on_hours[:-2]),
                 s194_temperature_celsius=int(x.s194_temperature_celsius[:-2]),
             )
         )
